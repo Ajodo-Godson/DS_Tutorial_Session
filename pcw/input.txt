@@ -1,0 +1,4 @@
+big data is the new oil
+big data is also the new soil
+learning hadoop and mapreduce is fun
+mapreduce is powerful
