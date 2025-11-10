@@ -8,3 +8,4 @@ Each cluster node runs tasks in parallel for better performance
 Fault tolerance and replication make Hadoop reliable
 Hadoop MapReduce splits data into blocks and processes them independently
 This is a simple example to count the number of words across the cluster
+

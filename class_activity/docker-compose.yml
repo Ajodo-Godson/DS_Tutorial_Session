@@ -1,45 +1,51 @@
 services:
-  namenode:
-    image: apache/hadoop:3
-    platform: linux/amd64
-    hostname: namenode
-    container_name: namenode
-    command: ["hdfs", "namenode"]
-    ports: ["9870:9870"]
-    env_file: ["./config"]
-    environment:
-      - HADOOP_HOME=/opt/hadoop
-      - ENSURE_NAMENODE_DIR=/tmp/hadoop-root/dfs/name
-
-  datanode:
-    image: apache/hadoop:3
-    platform: linux/amd64
-    command: ["hdfs", "datanode"]
-    env_file: ["./config"]
-    environment:
-      - HADOOP_HOME=/opt/hadoop
-
-  resourcemanager:
-    image: apache/hadoop:3
-    platform: linux/amd64
-    hostname: resourcemanager
-    container_name: resourcemanager
-    command: ["yarn", "resourcemanager"]
+  master:
+    image: ajosonn/mapreduce:latest
+    container_name: mapreduce_master
+    command: python -m src.master.server
     ports:
-      - "18088:8088"          #  (A) use a non-conflicting host port
-    env_file: ["./config"]
+      - "50051:50051"
+    networks:
+      - mapreduce_net
     environment:
-      - HADOOP_HOME=/opt/hadoop
-      - YARN_RESOURCEMANAGER_HEAPSIZE=1024   #  (B) give the RM 1GB heap for the web UI
-    restart: unless-stopped   #  (C) auto-restart if the UI process blips
-    volumes:
-      - ./pcw:/workspace
+      - PYTHONUNBUFFERED=1
 
-
-  nodemanager:
-    image: apache/hadoop:3
-    platform: linux/amd64
-    command: ["yarn", "nodemanager"]
-    env_file: ["./config"]
+  worker1:
+    image: ajosonn/mapreduce:latest
+    container_name: mapreduce_worker1
+    command: python -m src.worker.client worker1
+    depends_on:
+      - master
+    networks:
+      - mapreduce_net
     environment:
-      - HADOOP_HOME=/opt/hadoop
+      - PYTHONUNBUFFERED=1
+      - MASTER_ADDRESS=master:50051
+
+  worker2:
+    image: ajosonn/mapreduce:latest
+    container_name: mapreduce_worker2
+    command: python -m src.worker.client worker2
+    depends_on:
+      - master
+    networks:
+      - mapreduce_net
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MASTER_ADDRESS=master:50051
+
+  worker3:
+    image: ajosonn/mapreduce:latest
+    container_name: mapreduce_worker3
+    command: python -m src.worker.client worker3
+    depends_on:
+      - master
+    networks:
+      - mapreduce_net
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MASTER_ADDRESS=master:50051
+
+networks:
+  mapreduce_net:
+    driver: bridge
