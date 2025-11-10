@@ -2,3 +2,9 @@ big data is the new oil
 big data is also the new soil
 learning hadoop and mapreduce is fun
 mapreduce is powerful
+Hadoop is a framework for distributed storage and processing of large data sets
+Hadoop works on clusters of commodity hardware
+Each cluster node runs tasks in parallel for better performance
+Fault tolerance and replication make Hadoop reliable
+Hadoop MapReduce splits data into blocks and processes them independently
+This is a simple example to count the number of words across the cluster

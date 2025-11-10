@@ -1,34 +1,45 @@
 services:
   namenode:
     image: apache/hadoop:3
+    platform: linux/amd64
     hostname: namenode
     container_name: namenode
     command: ["hdfs", "namenode"]
-    ports:
-      - 9870:9870
-    env_file:
-      - ./config
+    ports: ["9870:9870"]
+    env_file: ["./config"]
     environment:
-        ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+      - HADOOP_HOME=/opt/hadoop
+      - ENSURE_NAMENODE_DIR=/tmp/hadoop-root/dfs/name
 
   datanode:
     image: apache/hadoop:3
+    platform: linux/amd64
     command: ["hdfs", "datanode"]
-    env_file:
-      - ./config
+    env_file: ["./config"]
+    environment:
+      - HADOOP_HOME=/opt/hadoop
 
   resourcemanager:
     image: apache/hadoop:3
+    platform: linux/amd64
     hostname: resourcemanager
     container_name: resourcemanager
     command: ["yarn", "resourcemanager"]
     ports:
-       - 8088:8088
-    env_file:
-      - ./config
+      - "18088:8088"          #  (A) use a non-conflicting host port
+    env_file: ["./config"]
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+      - YARN_RESOURCEMANAGER_HEAPSIZE=1024   #  (B) give the RM 1GB heap for the web UI
+    restart: unless-stopped   #  (C) auto-restart if the UI process blips
+    volumes:
+      - ./pcw:/workspace
+
 
   nodemanager:
     image: apache/hadoop:3
+    platform: linux/amd64
     command: ["yarn", "nodemanager"]
-    env_file:
-      - ./config
+    env_file: ["./config"]
+    environment:
+      - HADOOP_HOME=/opt/hadoop
